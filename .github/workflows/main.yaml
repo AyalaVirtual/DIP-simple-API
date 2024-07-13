@@ -79,7 +79,7 @@ jobs:
 
             aws ssm wait command-executed \
             --command-id $command_id \
-            --instance-id i-0ce36038f7d9e880a
+            --instance-id i-0ce36038f7d9e880a || true
 
             status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].StatusDetails" --output text)
 
@@ -88,7 +88,6 @@ jobs:
             if [ "$status" = "Success" ]; then
               echo "Command executed successfully"
             else
-              echo "Command failed"
-              echo "Error: $status"
+              echo "Command failed... time to get a new job"
               exit 1
             fi
