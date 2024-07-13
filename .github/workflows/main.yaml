@@ -62,7 +62,7 @@ jobs:
           id: login-aws-ecr
           uses: aws-actions/amazon-ecr-login@v2
 
-        # This step sends a command using the AWS Systems Manager to run a shell script on both EC2 instances with their instance IDs
+        # This step sends a command using the AWS Systems Manager to run a shell script on both EC2 instances with their instance IDs. The commands passed into the parameters get the login password for AWS ECR, login to Docker, and use the output of a previous step (login-aws-ecr.outputs.registry) as the registry.
         - name:  Deploy to EC2
           run: |
             command_id=$(aws ssm send-command \
@@ -71,6 +71,6 @@ jobs:
             --comment "Pull Docker image and run it" \
             --parameters 'commands=[
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-aws-ecr.outputs.registry }}",
-            ]')
+            ]' --query "Command.CommandId" --output text)
 
             echo "$command_id"
