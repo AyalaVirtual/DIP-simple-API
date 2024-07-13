@@ -4,8 +4,7 @@ on:
     branches: [ "main" ]
   
 jobs:
-  build-and-push-to-ecr:
-   
+  build:
   
     name: Build Docker Image
     runs-on: ubuntu-latest  
@@ -44,4 +43,12 @@ jobs:
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
        
-  
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    # This means that the deploy job will only run if the build job succeeded. When you have multiple GitHub Actions jobs, they will run one at a time (in parallel). Without this line, they would run at the same time and cause a conflict.
+    needs: build
+    steps:
+      - name: Echo
+        run: echo "Deploying to EC2"
+        
