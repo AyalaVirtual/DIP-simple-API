@@ -49,8 +49,22 @@ jobs:
     # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
     runs-on: ubuntu-latest
     # This means that the deploy job will only run if the build job succeeded. When you have multiple GitHub Actions jobs, they will run one at a time (in parallel). Without this line, they would run at the same time and cause a conflict.
-    # needs: build
+    needs: build
     steps:
-      # This step echoes the message "Deploying to EC2" when executed
-      - name: Echo
-        run: echo "Deploying to EC2"
+        # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps 
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{secrets.AWS_REGION}}
+
+
+        # This step uses the AWS CLI to login to AWS ECR and enable access to your ECR repositories during the workflow execution
+        - name: Log into AWS ECR
+          id: login-aws-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+
+        # This step prints the value of the registry output from the login-aws-ecr step to the console
+        - name:  Echo
+          run: echo ${{ steps.login-aws-ecr.outputs.registry }}
