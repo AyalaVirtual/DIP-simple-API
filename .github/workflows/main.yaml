@@ -4,12 +4,12 @@ on:
     branches: [ "main" ]
   
 jobs:
-  build:
+  # build:
   
-    name: Build Docker Image
-    # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
-    runs-on: ubuntu-latest  
-    steps:  
+  #   name: Build Docker Image
+  #   # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
+  #   runs-on: ubuntu-latest  
+  #   steps:
         # This step uses GitHub Actions' checkout action to check out your repository so your workflow can access it during the GitHub Actions workflow execution
         # - name: Checkout
         #   uses: actions/checkout@v2    
