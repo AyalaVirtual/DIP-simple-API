@@ -72,7 +72,7 @@ jobs:
             --targets "Key=instanceids,Values=i-0ce36038f7d9e880a, i-034adb8d85e633eaf" \
             --comment "Pull Docker image and run it" \
             --parameters 'commands=[
-              "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin potato",
+              "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-aws-ecr.outputs.registry }}",
             ]' --query "Command.CommandId" --output text)
 
             echo "$command_id"
