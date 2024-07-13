@@ -4,6 +4,7 @@ on:
     branches: [ "main" ]
   
 jobs:
+  # In subsequent pushes to GitHub, this entire build job and the 'needs: build' line below in the deploy job can be commented out to avoid building the image again.
   # build:
   
   #   name: Build Docker Image
@@ -46,10 +47,10 @@ jobs:
     name: Deploy to EC2
     # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
     runs-on: ubuntu-latest
-    # This means that the deploy job will only run if the build job succeeded. When you have multiple GitHub Actions jobs, they will run one at a time (in parallel). Without this line, they would run at the same time and cause a conflict.
+    # This means that the deploy job will only run if the build job succeeded. When you have multiple GitHub Actions jobs, they will run one at a time (in parallel). Without this line, they would run at the same time and cause a conflict. In subsequent pushes to GitHub, this line and the entire build job above can be commented out to avoid building the image again.
     # needs: build
     steps:
-        # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps 
+        # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps
         - name: Configure AWS Credentials
           uses: aws-actions/configure-aws-credentials@v4
           with:
