@@ -74,9 +74,9 @@ jobs:
             --parameters 'commands=[
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-aws-ecr.outputs.registry }}",
               "docker pull ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest",
-              "docker stop api || true",
-              "docker rm api || true",
-              "docker run --rm -d -p 3000:3000 --name api ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest"
+              "docker stop ${{ env.CONTAINER_NAME }} || true",
+              "docker rm ${{ env.CONTAINER_NAME }} || true",
+              "docker run --rm -d -p 3000:3000 --name ${{ env.CONTAINER_NAME }} ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest"
             ]' --query "Command.CommandId" --output text)
 
             echo "SSM Command ID: $command_id"
