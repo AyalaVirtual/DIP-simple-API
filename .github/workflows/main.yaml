@@ -85,11 +85,9 @@ jobs:
 
             status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].StatusDetails" --output text)
 
-            echo "$status"
-
             if [ "$status" = "Success" ]; then
               echo "Command executed successfully"
             else
-              echo "Command failed... time to get a new job"
+              echo "Command failed...time to get a new job!"
               exit 1
             fi
