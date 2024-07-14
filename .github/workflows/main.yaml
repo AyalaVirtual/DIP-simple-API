@@ -5,50 +5,50 @@ on:
   
 jobs:
   # In subsequent pushes to GitHub, this entire build job and the 'needs: build' line below in the deploy job can be commented out to avoid building the image again.
-  # build:
+  build:
   
-  #   name: Build Docker Image
-  #   # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
-  #   runs-on: ubuntu-latest
-  #   steps:
+    name: Build Docker Image
+    # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
+    runs-on: ubuntu-latest
+    steps:
         # This step uses GitHub Actions' checkout action to check out your repository so your workflow can access it during the GitHub Actions workflow execution
-        # - name: Checkout
-        #   uses: actions/checkout@v2
+        - name: Checkout
+          uses: actions/checkout@v2
           
-        # # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps 
-        # - name: Configure AWS Credentials
-        #   uses: aws-actions/configure-aws-credentials@v4
-        #   with:
-        #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        #     aws-region: ${{secrets.AWS_REGION}}
+        # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps 
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{secrets.AWS_REGION}}
 
-        # # This step uses the AWS CLI to login to AWS ECR and enable access to your ECR repositories during the workflow execution
-        # - name: Log into AWS ECR
-        #   id: login-aws-ecr
-        #   uses: aws-actions/amazon-ecr-login@v2
+        # This step uses the AWS CLI to login to AWS ECR and enable access to your ECR repositories during the workflow execution
+        - name: Log into AWS ECR
+          id: login-aws-ecr
+          uses: aws-actions/amazon-ecr-login@v2
           
         # This step uses the AWS CLI to build and push the Docker image to AWS ECR
-        # - name: Build and Push Docker Image to ECR
-        #   # This sets up the environment variables
-        #   env:
-        #     # This is set to the output from the login-aws-ecr step, specifically the registry value. This is the URI of the ECR registry that you're pushing to.
-        #     ECR_REGISTRY: ${{ steps.login-aws-ecr.outputs.registry }}
-        #     # This is set to the value of the AWS_ECR_REPO secret, which is presumably the name of the ECR repository that you're pushing to.
-        #     ECR_REPOSITORY: ${{secrets.AWS_ECR_REPO}}
-        #     # This is set to latest, which is a common tag for Docker images. It typically refers to the most recently built version of an image.
-        #     IMAGE_TAG: latest
-        #   # This contains the Docker commands to build the Docker image using the specified tag and push it to the AWS ECR repository
-        #   run: |
-        #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        - name: Build and Push Docker Image to ECR
+          # This sets up the environment variables
+          env:
+            # This is set to the output from the login-aws-ecr step, specifically the registry value. This is the URI of the ECR registry that you're pushing to.
+            ECR_REGISTRY: ${{ steps.login-aws-ecr.outputs.registry }}
+            # This is set to the value of the AWS_ECR_REPO secret, which is presumably the name of the ECR repository that you're pushing to.
+            ECR_REPOSITORY: ${{secrets.AWS_ECR_REPO}}
+            # This is set to latest, which is a common tag for Docker images. It typically refers to the most recently built version of an image.
+            IMAGE_TAG: latest
+          # This contains the Docker commands to build the Docker image using the specified tag and push it to the AWS ECR repository
+          run: |
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   deploy:
     name: Deploy to EC2
     # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
     runs-on: ubuntu-latest
     # This means that the deploy job will only run if the build job succeeded. When you have multiple GitHub Actions jobs, they will run one at a time (in parallel). Without this line, they would run at the same time and cause a conflict. In subsequent pushes to GitHub, this line and the entire build job above can be commented out to avoid building the image again.
-    # needs: build
+    needs: build
     steps:
         # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps
         - name: Configure AWS Credentials
