@@ -9,11 +9,11 @@ jobs:
   
   #   name: Build Docker Image
   #   # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
-  #   runs-on: ubuntu-latest  
+  #   runs-on: ubuntu-latest
   #   steps:
         # This step uses GitHub Actions' checkout action to check out your repository so your workflow can access it during the GitHub Actions workflow execution
         # - name: Checkout
-        #   uses: actions/checkout@v2    
+        #   uses: actions/checkout@v2
           
         # # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps 
         # - name: Configure AWS Credentials
@@ -42,7 +42,7 @@ jobs:
         #   run: |
         #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-       
+
   deploy:
     name: Deploy to EC2
     # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
@@ -69,7 +69,7 @@ jobs:
           run: |
             command_id=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceids,Values=i-0ce36038f7d9e880a, i-034adb8d85e633eaf" \
+            --targets "Key=InstanceIds,Values=i-0ce36038f7d9e880a,i-034adb8d85e633eaf" \
             --comment "Pull Docker image and run it" \
             --parameters 'commands=[
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-aws-ecr.outputs.registry }}",
@@ -77,15 +77,11 @@ jobs:
               "docker run --rm -d -p 3000:3000 --name api ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest"
             ]' --query "Command.CommandId" --output text)
 
-            echo "$command_id"
-
             aws ssm wait command-executed \
             --command-id $command_id \
             --instance-id i-0ce36038f7d9e880a || true
 
             status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].StatusDetails" --output text)
-
-            echo "$status"
 
             if [ "$status" = "Success" ]; then
               echo "Command executed successfully"
@@ -93,3 +89,4 @@ jobs:
               echo "Command failed... time to get a new job"
               exit 1
             fi
+
