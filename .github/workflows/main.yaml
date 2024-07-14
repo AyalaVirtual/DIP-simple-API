@@ -11,9 +11,9 @@ jobs:
     # This means that this GitHub Actions job runs on an Ubuntu-latest virtual machine
     runs-on: ubuntu-latest  
     steps:
-        This step uses GitHub Actions' checkout action to check out your repository so your workflow can access it during the GitHub Actions workflow execution
+        # This step uses GitHub Actions' checkout action to check out your repository so your workflow can access it during the GitHub Actions workflow execution
         - name: Checkout
-          uses: actions/checkout@v2    
+          uses: actions/checkout@v2
           
         # This step uses the AWS CLI to configure AWS credentials so the workflow can interact with AWS services in subsequent steps 
         - name: Configure AWS Credentials
