@@ -56,7 +56,7 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{secrets.AWS_REGION}}
+            aws-region: ${{ secrets.AWS_REGION} }
 
         # This step uses the AWS CLI to login to AWS ECR and enable access to your ECR repositories during the workflow execution
         - name: Log into AWS ECR
@@ -71,10 +71,10 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceids,Values=i-0ce36038f7d9e880a, i-034adb8d85e633eaf" \
             --comment "Pull Docker image and run it" \
-            --parameters 'commands=[
+            --parameters commands='[
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-aws-ecr.outputs.registry }}",
-              "docker pull ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest",
-              "docker run --rm -d -p 3000:3000 --name api ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest",
+              "docker pull ${{ steps.login-aws-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPO }}:latest",
+              "docker run --rm -d -p 3000:3000 --name "api" ${{ steps.login-aws-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPO }}:latest",
             ]' --query "Command.CommandId" --output text)
 
             aws ssm wait command-executed \
