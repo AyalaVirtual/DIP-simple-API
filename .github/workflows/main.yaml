@@ -69,7 +69,7 @@ jobs:
           run: |
             command_id=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
-            --targets "Key=InstanceIds,Values=i-0ce36038f7d9e880a,i-034adb8d85e633eaf" \
+            --targets "Key=instanceids,Values=i-0ce36038f7d9e880a,i-034adb8d85e633eaf" \
             --comment "Pull Docker image and run it" \
             --parameters 'commands=[
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-aws-ecr.outputs.registry }}",
@@ -77,16 +77,25 @@ jobs:
               "docker run --rm -d -p 3000:3000 --name api ${{ steps.login-aws-ecr.outputs.registry }}/${{secrets.AWS_ECR_REPO}}:latest"
             ]' --query "Command.CommandId" --output text)
 
+            echo "SSM Command ID: $command_id"
+
             aws ssm wait command-executed \
             --command-id $command_id \
             --instance-id i-0ce36038f7d9e880a || true
 
+            aws ssm wait command-executed \
+            --command-id $command_id \
+            --instance-id i-034adb8d85e633eaf || true
+
             status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].StatusDetails" --output text)
+
+            echo "SSM Command Status: $status"
 
             if [ "$status" = "Success" ]; then
               echo "Command executed successfully"
             else
               echo "Command failed... time to get a new job"
+              aws ssm list-command-invocations --command-id $command_id --details
               exit 1
             fi
 
